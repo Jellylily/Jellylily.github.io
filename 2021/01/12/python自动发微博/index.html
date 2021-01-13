@@ -1,0 +1,264 @@
+<!DOCTYPE html><html lang="zh" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>python自动发微博 | Zephyr</title><meta name="keywords" content="python"><meta name="author" content="Skye"><meta name="copyright" content="Skye"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><meta name="description" content="前言再次，工作需要。 还是信息同步的工作，需要向微博同步信息。之前是使用的selenium来对浏览器进行操作，本次也可以采取这种方法。但想尝试一下新的方向，正好微博也有供开发者使用的接口，所以就打算试试这个思路。 总的说来，本次工作主要是：前期配置 + 代码编写。 由于需要对工作内容保密，本次文章主要讲述入门知识，以及在这过程中遇到的许多坑。准备素材接口这一步，我的其他文章里有讲到，这里就不赘述啦">
+<meta property="og:type" content="article">
+<meta property="og:title" content="python自动发微博">
+<meta property="og:url" content="http://example.com/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/index.html">
+<meta property="og:site_name" content="Zephyr">
+<meta property="og:description" content="前言再次，工作需要。 还是信息同步的工作，需要向微博同步信息。之前是使用的selenium来对浏览器进行操作，本次也可以采取这种方法。但想尝试一下新的方向，正好微博也有供开发者使用的接口，所以就打算试试这个思路。 总的说来，本次工作主要是：前期配置 + 代码编写。 由于需要对工作内容保密，本次文章主要讲述入门知识，以及在这过程中遇到的许多坑。准备素材接口这一步，我的其他文章里有讲到，这里就不赘述啦">
+<meta property="og:locale">
+<meta property="og:image" content="https://s3.ax1x.com/2021/01/12/sYArOe.png">
+<meta property="article:published_time" content="2021-01-12T09:42:38.000Z">
+<meta property="article:modified_time" content="2021-01-13T02:26:16.722Z">
+<meta property="article:author" content="Skye">
+<meta property="article:tag" content="python">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://s3.ax1x.com/2021/01/12/sYArOe.png"><link rel="shortcut icon" href="/img/1.jpg"><link rel="canonical" href="http://example.com/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  ClickShowText: undefined,
+  lightbox: 'fancybox',
+  Snackbar: {"chs_to_cht":"Traditional Chinese Activated Manually","cht_to_chs":"Simplified Chinese Activated Manually","day_to_night":"Dark Mode Activated Manually","night_to_day":"Light Mode Activated Manually","bgLight":"#49b1f5","bgDark":"#121212","position":"bottom-left"},
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false
+};
+
+var saveToLocal = {
+  set: function setWithExpiry(key, value, ttl) {
+    const now = new Date()
+    const expiryDay = ttl * 86400000
+    const item = {
+      value: value,
+      expiry: now.getTime() + expiryDay,
+    }
+    localStorage.setItem(key, JSON.stringify(item))
+  },
+
+  get: function getWithExpiry(key) {
+    const itemStr = localStorage.getItem(key)
+
+    if (!itemStr) {
+      return undefined
+    }
+    const item = JSON.parse(itemStr)
+    const now = new Date()
+
+    if (now.getTime() > item.expiry) {
+      localStorage.removeItem(key)
+      return undefined
+    }
+    return item.value
+  }
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2021-01-13 10:26:16'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(function () {  window.activateDarkMode = function () {
+    document.documentElement.setAttribute('data-theme', 'dark')
+    if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+    }
+  }
+  window.activateLightMode = function () {
+    document.documentElement.setAttribute('data-theme', 'light')
+   if (document.querySelector('meta[name="theme-color"]') !== null) {
+      document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+    }
+  }
+  const autoChangeMode = 'false'
+  const t = saveToLocal.get('theme')
+  if (autoChangeMode === '1') {
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+    const isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+    const isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+    const hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+    if (t === undefined) {
+      if (isLightMode) activateLightMode()
+      else if (isDarkMode) activateDarkMode()
+      else if (isNotSpecified || hasNoSupport) {
+        const now = new Date()
+        const hour = now.getHours()
+        const isNight = hour <= 6 || hour >= 18
+        isNight ? activateDarkMode() : activateLightMode()
+      }
+      window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+        if (saveToLocal.get('theme') === undefined) {
+          e.matches ? activateDarkMode() : activateLightMode()
+        }
+      })
+    } else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else if (autoChangeMode === '2') {
+    const now = new Date()
+    const hour = now.getHours()
+    const isNight = hour <= 6 || hour >= 18
+    if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+    else if (t === 'light') activateLightMode()
+    else activateDarkMode()
+  } else {
+    if (t === 'dark') activateDarkMode()
+    else if (t === 'light') activateLightMode()
+  }const asideStatus = saveToLocal.get('aside-status')
+if (asideStatus !== undefined) {
+   if (asideStatus === 'hide') {
+     document.documentElement.classList.add('hide-aside')
+   } else {
+     document.documentElement.classList.remove('hide-aside')
+   }
+}})()</script><meta name="generator" content="Hexo 5.2.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="author-avatar"><img class="avatar-img" src="/img/head.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data"><div class="data-item is-center"><div class="data-item-link"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">11</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div></div><div class="data-item is-center"><div class="data-item-link"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://s3.ax1x.com/2021/01/12/sYArOe.png)"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Zephyr</a></span><span id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><span class="close" id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><h1 class="post-title">python自动发微博</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2021-01-12T09:42:38.000Z" title="Created 2021-01-12 17:42:38">2021-01-12</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2021-01-13T02:26:16.722Z" title="Updated 2021-01-13 10:26:16">2021-01-13</time></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">Word count:</span><span class="word-count">1.8k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">Reading time:</span><span>6min</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>再次，工作需要。</p>
+<p>还是信息同步的工作，需要向微博同步信息。之前是使用的selenium来对浏览器进行操作，本次也可以采取这种方法。但想尝试一下新的方向，正好微博也有供开发者使用的接口，所以就打算试试这个思路。</p>
+<p>总的说来，本次工作主要是：前期配置 + 代码编写。</p>
+<p>由于需要对工作内容保密，本次文章主要讲述入门知识，以及在这过程中遇到的许多坑。准备素材接口这一步，我的其他文章里有讲到，这里就不赘述啦。</p>
+<h1 id="流程思路"><a href="#流程思路" class="headerlink" title="流程思路"></a>流程思路</h1><ol>
+<li>配置微博api</li>
+<li>准备素材接口</li>
+<li>自动发布代码编写</li>
+</ol>
+<h1 id="配置微博api"><a href="#配置微博api" class="headerlink" title="配置微博api"></a>配置微博api</h1><p>本部分会讲的较为详细，对于一个新手来说，这部分的知识很基础但很重要！</p>
+<p>要特别注意这里面记录的一些坑，会为你节省不少时间。</p>
+<h2 id="微博api"><a href="#微博api" class="headerlink" title="微博api"></a>微博api</h2><p>微博为广大的开发者提供了下面这个平台。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://open.weibo.com/">https://open.weibo.com/</a></p>
+</blockquote>
+<p>进入这个平台之后，首先使用你的账号进行登录，并进行相关注册。</p>
+<p><code>注意</code></p>
+<p><code>在注册过程中，会让你选择**开发者类型**。有“个人”和“企业”两个选项。可以按照实际情况进行选择。本次以选择“个人”为例。</code></p>
+<p><code>选择“企业”会获得更多的开发功能和权限。</code></p>
+<h2 id="申请应用"><a href="#申请应用" class="headerlink" title="申请应用"></a>申请应用</h2><p>申请应用的目的是为了得到 <strong>App Key、App Secret</strong>，设置<strong>安全域名、回调域名</strong>。</p>
+<p>申请“应用”，可以这样简单理解：为你的脚本提供一个后台。</p>
+<p>步骤如下：</p>
+<blockquote>
+<p>首页-&gt;微服务-&gt;立即创建微服务应用-&gt;粉丝服务平台-&gt;创建应用</p>
+</blockquote>
+<p>创建过程中，应用名称可以写网站名称，实在没有可以自定义。</p>
+<h3 id="安全域名"><a href="#安全域名" class="headerlink" title="安全域名"></a>安全域名</h3><p>在应用基本信息中，这一项很重要很重要！</p>
+<ol>
+<li>安全域名需要备案的。</li>
+<li>你需要有该域名下网站的管理权限。（因为需要向该网站根目录下传一个特定文件进行验证）</li>
+<li>这个安全域名（或其子域名）必须出现在你的微博正文中。</li>
+</ol>
+<p><code>注意！</code></p>
+<p><code>在申请应用的时候，填写安全域名时，前面不要加 http 或者 https这种前缀。</code></p>
+<p><code>在代码中填写安全域名时，前面要加上http 或者 https这种前缀。</code></p>
+<h3 id="回调域名"><a href="#回调域名" class="headerlink" title="回调域名"></a>回调域名</h3><p>回调域名可以这样简单理解：给你一个授权页面。</p>
+<p>在编写代码时，有<strong>输入用户名密码</strong>以及<strong>获得token</strong>两种账号方式。两种方式都需要填写这个回调域名。但如果使用<strong>获得token</strong>的方式，就需要用这个回调域名进行一些操作。如果是<strong>输入用户名密码</strong>，只需要填写域名就好。</p>
+<p>这个回调域名不要求你有管理权限，目前看来是可以随意填写的。（这是不负责的说法）</p>
+<p>设置步骤如下：</p>
+<blockquote>
+<p>应用信息-&gt;高级信息-&gt;OAuth2.0 授权设置-&gt;授权回调页</p>
+</blockquote>
+<h1 id="代码编写"><a href="#代码编写" class="headerlink" title="代码编写"></a>代码编写</h1><h2 id="安装weibo库"><a href="#安装weibo库" class="headerlink" title="安装weibo库"></a>安装weibo库</h2><p>首先给出这个库的文档地址：<a target="_blank" rel="noopener" href="https://pypi.org/project/weibo/#description">https://pypi.org/project/weibo/#description</a></p>
+<p>python上有一个封装好的库可以用来调用微博的api，叫<strong>weibo</strong>。</p>
+<p>而安装这个库，大概率是要报这个错的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&quot;C:\Users\Skye\AppData\Local\Temp\pip-install-3ts0b_eo\weibo_c8fc1bfd2fdc49ecad10d472fc905fd5\setup.py&quot;, line 15, in &lt;module&gt;</span><br><span class="line">        long_description&#x3D;open(&#39;README.rst&#39;).read(),</span><br><span class="line">    UnicodeDecodeError: &#39;gbk&#39; codec can&#39;t decode byte 0xae in position 241: illegal multibyte sequence</span><br><span class="line">    ----------------------------------------</span><br><span class="line">ERROR: Command errored out with exit status 1: python setup.py egg_info Check the logs for full command output.</span><br></pre></td></tr></table></figure>
+
+<p>意思是在安装时setup.py这个文件由于编码问题解析不了。</p>
+<p>而上面那个文件路径在电脑上是找不到的，所以不建议采用pycharm或者是pip命令直接安装。</p>
+<p>解决办法如下：</p>
+<ol>
+<li>进入pypi.org ，下载 weibo 库。下载地址如下：</li>
+</ol>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://pypi.org/project/weibo/#files">https://pypi.org/project/weibo/#files</a></p>
+</blockquote>
+<ol>
+<li>解压后，修改 setup.py 中的代码，替换成下面这样：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">long_description=<span class="built_in">open</span>(<span class="string">&#x27;README.rst&#x27;</span>, encoding=<span class="string">&#x27;utf-8&#x27;</span>).read(),</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>执行以下命令进行安装：</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">python setup.py build</span><br><span class="line">python setup.py install</span><br></pre></td></tr></table></figure>
+
+<h2 id="代码编写-1"><a href="#代码编写-1" class="headerlink" title="代码编写"></a>代码编写</h2><p>以下我会以<strong>token认证</strong>以及<strong>用户名/密码认证</strong>这两种方式展开，完整的代码会在各自的部分最后。</p>
+<h3 id="token认证"><a href="#token认证" class="headerlink" title="token认证"></a>token认证</h3><p>首先在命令行中输入：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="keyword">from</span> weibo <span class="keyword">import</span> Client</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c = Client(API_KEY, API_SECRET, REDIRECT_URI)  <span class="comment"># 此处填自己的API_KEY, API_SECRET, 回调地址</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>c.authorize_url</span><br></pre></td></tr></table></figure>
+
+<p>这时会弹出来一个网址，复制到浏览器打开：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#39;https:&#x2F;&#x2F;api.weibo.com&#x2F;oauth2&#x2F;authorize?redirect_uri&#x3D;http%3A%2F%2F127.0.0.1%2Fcallback&amp;client_id&#x3D;123456&#39;</span><br></pre></td></tr></table></figure>
+
+<p>打开后，会让你扫码认证，然后返给你一个code。继续在命令行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&gt;&gt;&gt; c.set_code(&#39;填写自己的code&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>这样，client 初始化完成。继续在命令行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>token = c.token</span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>print(token)</span><br></pre></td></tr></table></figure>
+
+<p>此时会返给你一串token，你需要将token保存下来放在代码中。</p>
+<p>完整的简单代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> weibo <span class="keyword">import</span> Client</span><br><span class="line"></span><br><span class="line">token = &#123;<span class="string">&#x27;access_token&#x27;</span>: <span class="string">&#x27;xxxxxxxxxxx&#x27;</span>, <span class="string">&#x27;remind_in&#x27;</span>: <span class="string">&#x27;xxxxxxxxxxx&#x27;</span>, <span class="string">&#x27;uid&#x27;</span>: <span class="string">&#x27;xxxxxxxxxxx&#x27;</span>, <span class="string">&#x27;isRealName&#x27;</span>: <span class="string">&#x27;true&#x27;</span>, <span class="string">&#x27;expires_at&#x27;</span>: xxxxxxxxxxx&#125;</span><br><span class="line"></span><br><span class="line">c = Client(API_KEY, API_SECRET, 回调域名, token)</span><br><span class="line"></span><br><span class="line">c.post(<span class="string">&#x27;statuses/share&#x27;</span>, status=<span class="string">&#x27;你想输入的文本&#x27;</span> + 安全域名)</span><br></pre></td></tr></table></figure>
+
+<h3 id="用户名-密码认证"><a href="#用户名-密码认证" class="headerlink" title="用户名/密码认证"></a>用户名/密码认证</h3><p>这个就比较简单了，如果你能记住微博的用户名和密码。</p>
+<p>完整代码如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> weibo <span class="keyword">import</span> Client</span><br><span class="line">c = Client(API_KEY, API_SECRET, 回调域名, username=<span class="string">&#x27;xxxxx&#x27;</span>, password=<span class="string">&#x27;xxxxx&#x27;</span>)</span><br><span class="line">c.post(<span class="string">&#x27;statuses/share&#x27;</span>, status=<span class="string">&#x27;你想输入的文本&#x27;</span> + 安全域名)</span><br></pre></td></tr></table></figure>
+
+<h3 id="传入图片"><a href="#传入图片" class="headerlink" title="传入图片"></a>传入图片</h3><p>这个很简单，只需要新添一点代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">f = <span class="built_in">open</span>(<span class="string">&#x27;1.png&#x27;</span>, <span class="string">&#x27;rb&#x27;</span>)</span><br><span class="line">c.post(<span class="string">&#x27;statuses/share&#x27;</span>, status=<span class="string">&#x27;你想输入的文本&#x27;</span> + 安全域名, pic=f)</span><br><span class="line">f.close()</span><br></pre></td></tr></table></figure>
+
+<p>不过要注意图片的路径。</p>
+<h2 id="常见错误"><a href="#常见错误" class="headerlink" title="常见错误"></a>常见错误</h2><p><strong>1.</strong> <strong>21322 重定向地址不匹配</strong></p>
+<ul>
+<li>检查安全域名是否填写</li>
+</ul>
+<p><strong>2.</strong> <strong>appkey not bind domain</strong></p>
+<ul>
+<li>检查安全域名是否填写</li>
+</ul>
+<p><strong>3.</strong> <strong>text not find domain!</strong></p>
+<ul>
+<li>检查代码中是否有加上安全域名</li>
+</ul>
+<p><strong>4.</strong> <strong>service unavailable</strong></p>
+<ul>
+<li>原因：接口调用总次数用完了（每小时总次数150次）</li>
+<li>解决：<ul>
+<li>插件的【社交评论】-【微博回推】功能关闭，一般等整点后或者第二天恢复。</li>
+<li>如果您的网站有采集文章，在【同步微博】-【同步设置】-其他同步设置 勾选”只允许在网站后台发布时同步，其他情况不同步”。</li>
+</ul>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本次实践中，算是熟悉了一下微博api的基本调用，实现的功能也比较基础。由于对微博api的不熟悉，导致我在前面配置上面画了不少时间，代码倒是很简单。在这过程中，我忘记了微博的用户名和密码，所以在这上面花费了许久时间，最后是采取token认证的方式。（在此吐槽一下微博的密码找回机制，太鸡肋了）。所以一定要好好看官方文档啊！</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="mailto:undefined">Skye</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://example.com/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/">http://example.com/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a></div><div class="post_share"><div class="social-share" data-image="https://s3.ax1x.com/2021/01/12/sYArOe.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2021/01/07/%E6%96%87%E6%A1%A3%E8%87%AA%E5%8A%A8%E5%8C%96%E2%80%94%E2%80%94docxtpl%EF%BC%88%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%89/"><img class="next-cover" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="onerror=null;src='/img/404.jpg'"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">文档自动化——docxtpl（进阶篇）</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span> Related Articles</span></div><div class="relatedPosts-list"><div><a href="/2021/01/05/项目合作——Api请求/" title="项目合作——Api请求"><img class="cover" src="https://s3.ax1x.com/2021/01/06/sVA0SO.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2021-01-05</div><div class="title">项目合作——Api请求</div></div></a></div></div></div></div><div class="aside_content" id="aside_content"><div class="card-widget card-info"><div class="card-content"><div class="card-info-avatar is-center"><img class="avatar-img" src="/img/head.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/><div class="author-info__name">Skye</div><div class="author-info__description">Live while we young.</div></div><div class="card-info-data"><div class="card-info-data-item is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">11</div></a></div><div class="card-info-data-item is-center"><a href="/tags/"><div class="headline">Tags</div><div class="length-num">6</div></a></div><div class="card-info-data-item is-center"><a href="/categories/"><div class="headline">Categories</div><div class="length-num">3</div></a></div></div><a class="button--animated" id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div></div><div class="card-widget card-announcement"><div class="card-content"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>Announcement</span></div><div class="announcement_content">This is my Blog</div></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="card-content"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%B5%81%E7%A8%8B%E6%80%9D%E8%B7%AF"><span class="toc-number">2.</span> <span class="toc-text">流程思路</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%85%8D%E7%BD%AE%E5%BE%AE%E5%8D%9Aapi"><span class="toc-number">3.</span> <span class="toc-text">配置微博api</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BE%AE%E5%8D%9Aapi"><span class="toc-number">3.1.</span> <span class="toc-text">微博api</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%B3%E8%AF%B7%E5%BA%94%E7%94%A8"><span class="toc-number">3.2.</span> <span class="toc-text">申请应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E5%85%A8%E5%9F%9F%E5%90%8D"><span class="toc-number">3.2.1.</span> <span class="toc-text">安全域名</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E8%B0%83%E5%9F%9F%E5%90%8D"><span class="toc-number">3.2.2.</span> <span class="toc-text">回调域名</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99"><span class="toc-number">4.</span> <span class="toc-text">代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%89%E8%A3%85weibo%E5%BA%93"><span class="toc-number">4.1.</span> <span class="toc-text">安装weibo库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E7%BC%96%E5%86%99-1"><span class="toc-number">4.2.</span> <span class="toc-text">代码编写</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#token%E8%AE%A4%E8%AF%81"><span class="toc-number">4.2.1.</span> <span class="toc-text">token认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%A8%E6%88%B7%E5%90%8D-%E5%AF%86%E7%A0%81%E8%AE%A4%E8%AF%81"><span class="toc-number">4.2.2.</span> <span class="toc-text">用户名&#x2F;密码认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%A0%E5%85%A5%E5%9B%BE%E7%89%87"><span class="toc-number">4.2.3.</span> <span class="toc-text">传入图片</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%A7%81%E9%94%99%E8%AF%AF"><span class="toc-number">4.3.</span> <span class="toc-text">常见错误</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-number">5.</span> <span class="toc-text">总结</span></a></li></ol></div></div></div><div class="card-widget card-recent-post"><div class="card-content"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/" title="python自动发微博"><img src="https://s3.ax1x.com/2021/01/12/sYArOe.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="python自动发微博"/></a><div class="content"><a class="title" href="/2021/01/12/python%E8%87%AA%E5%8A%A8%E5%8F%91%E5%BE%AE%E5%8D%9A/" title="python自动发微博">python自动发微博</a><time datetime="2021-01-12T09:42:38.000Z" title="Created 2021-01-12 17:42:38">2021-01-12</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/07/%E6%96%87%E6%A1%A3%E8%87%AA%E5%8A%A8%E5%8C%96%E2%80%94%E2%80%94docxtpl%EF%BC%88%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%89/" title="文档自动化——docxtpl（进阶篇）"><img src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/img/default.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="文档自动化——docxtpl（进阶篇）"/></a><div class="content"><a class="title" href="/2021/01/07/%E6%96%87%E6%A1%A3%E8%87%AA%E5%8A%A8%E5%8C%96%E2%80%94%E2%80%94docxtpl%EF%BC%88%E8%BF%9B%E9%98%B6%E7%AF%87%EF%BC%89/" title="文档自动化——docxtpl（进阶篇）">文档自动化——docxtpl（进阶篇）</a><time datetime="2021-01-07T07:02:16.000Z" title="Created 2021-01-07 15:02:16">2021-01-07</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/06/%E5%9B%BE%E7%89%87%E6%89%B9%E5%A4%84%E7%90%86%E2%80%94%E2%80%94Adobe-Photoshop/" title="图片批处理——Adobe Photoshop"><img src="https://ss2.bdstatic.com/70cFvnSh_Q1YnxGkpoWK1HF6hhy/it/u=3764236462,1603702244&amp;fm=26&amp;gp=0.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="图片批处理——Adobe Photoshop"/></a><div class="content"><a class="title" href="/2021/01/06/%E5%9B%BE%E7%89%87%E6%89%B9%E5%A4%84%E7%90%86%E2%80%94%E2%80%94Adobe-Photoshop/" title="图片批处理——Adobe Photoshop">图片批处理——Adobe Photoshop</a><time datetime="2021-01-06T10:01:28.000Z" title="Created 2021-01-06 18:01:28">2021-01-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/06/%E6%8E%92%E7%89%88%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94Adobe-InDesign/" title="排版工具——Adobe InDesign"><img src="https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=2911524621,3650965172&amp;fm=26&amp;gp=0.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="排版工具——Adobe InDesign"/></a><div class="content"><a class="title" href="/2021/01/06/%E6%8E%92%E7%89%88%E5%B7%A5%E5%85%B7%E2%80%94%E2%80%94Adobe-InDesign/" title="排版工具——Adobe InDesign">排版工具——Adobe InDesign</a><time datetime="2021-01-06T10:00:46.000Z" title="Created 2021-01-06 18:00:46">2021-01-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2021/01/05/%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D%E2%80%94%E2%80%94selenium-IDE/" title="工具介绍——selenium IDE"><img src="https://s3.ax1x.com/2021/01/06/sVkcGT.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="工具介绍——selenium IDE"/></a><div class="content"><a class="title" href="/2021/01/05/%E5%B7%A5%E5%85%B7%E4%BB%8B%E7%BB%8D%E2%80%94%E2%80%94selenium-IDE/" title="工具介绍——selenium IDE">工具介绍——selenium IDE</a><time datetime="2021-01-05T02:37:32.000Z" title="Created 2021-01-05 10:37:32">2021-01-05</time></div></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Skye</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script></div></body></html>
